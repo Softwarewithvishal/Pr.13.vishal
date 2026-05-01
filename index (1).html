@@ -1,150 +1,769 @@
 <?php
-// Contact Form Logic
-$msg = "";
-if(isset($_POST['submit'])){
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $message = $_POST['message'];
+// ============================================================
+// KD Polytechnic, Patan - College Portal
+// Subject: Introduction to Web Development (DI04007011)
+// Practical No. 13 - Mini Web Application (Part iii)
+// ============================================================
 
-    if($name && $email && $message){
-        $msg = "Thank you $name! Your message has been received.";
-    } else {
-        $msg = "Please fill all fields!";
-    }
-}
+// Get the current page from URL, default to 'home'
+$page = isset($_GET['page']) ? $_GET['page'] : 'home';
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My College Website</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KD Polytechnic, Patan - College Portal</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+
     <style>
+        /* ---- CSS Reset & Variables ---- */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy:   #1a2a4a;
+            --blue:   #2563eb;
+            --gold:   #d4a017;
+            --light:  #f0f4ff;
+            --white:  #ffffff;
+            --gray:   #6b7280;
+            --border: #cbd5e1;
+            --success:#16a34a;
+            --radius: 8px;
+        }
+
         body {
-            font-family: Arial;
-            margin: 0;
-            background: #f4f4f4;
+            font-family: 'Source Sans 3', sans-serif;
+            background: var(--light);
+            color: #1e293b;
+            min-height: 100vh;
         }
 
+        /* ---- Header ---- */
         header {
-            background: #004080;
-            color: white;
-            padding: 15px;
-            text-align: center;
+            background: var(--navy);
+            color: var(--white);
+            padding: 0;
         }
 
-        nav {
-            background: #333;
-            padding: 10px;
+        .header-top {
+            background: var(--gold);
             text-align: center;
+            padding: 6px 20px;
+            font-size: 13px;
+            color: var(--navy);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .header-main {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 18px 40px;
+        }
+
+        .header-logo {
+            width: 64px;
+            height: 64px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: var(--navy);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .header-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            color: var(--white);
+            line-height: 1.2;
+        }
+
+        .header-text p {
+            font-size: 13px;
+            color: var(--gold);
+            margin-top: 3px;
+            letter-spacing: 0.4px;
+        }
+
+        /* ---- Navigation ---- */
+        nav {
+            background: var(--blue);
+            padding: 0 40px;
+            display: flex;
+            gap: 4px;
         }
 
         nav a {
-            color: white;
-            margin: 10px;
+            color: rgba(255,255,255,0.85);
             text-decoration: none;
-            font-weight: bold;
+            padding: 13px 22px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            display: inline-block;
+            transition: background 0.2s, color 0.2s;
+            border-bottom: 3px solid transparent;
         }
 
-        nav a:hover {
-            color: yellow;
+        nav a:hover,
+        nav a.active {
+            background: rgba(255,255,255,0.12);
+            color: var(--white);
+            border-bottom-color: var(--gold);
         }
 
-        .container {
-            padding: 20px;
+        /* ---- Page Layout ---- */
+        .page-wrapper {
+            max-width: 1100px;
+            margin: 36px auto;
+            padding: 0 24px 60px;
         }
 
-        .card {
-            background: white;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: var(--navy);
+            margin-bottom: 6px;
         }
 
-        footer {
-            background: #004080;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            margin-top: 20px;
+        .section-subtitle {
+            color: var(--gray);
+            font-size: 15px;
+            margin-bottom: 30px;
         }
 
-        input, textarea {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-        }
-
-        button {
-            background: #004080;
-            color: white;
-            padding: 10px;
+        .divider {
             border: none;
-            cursor: pointer;
+            border-top: 2px solid var(--gold);
+            width: 60px;
+            margin: 10px 0 28px;
         }
 
-        button:hover {
-            background: #0066cc;
+        /* ---- Cards ---- */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 28px 32px;
+            margin-bottom: 28px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 19px;
+            color: var(--navy);
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ---- Image Slider ---- */
+        .slider-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 760px;
+            margin: 0 auto 28px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 3px solid var(--navy);
+            box-shadow: 0 8px 24px rgba(26,42,74,0.18);
+        }
+
+        .slider-wrapper img {
+            width: 100%;
+            height: 340px;
+            object-fit: cover;
+            display: block;
+            transition: opacity 0.7s ease;
+        }
+
+        .slider-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(26,42,74,0.85));
+            color: var(--white);
+            padding: 20px 20px 16px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .slider-dots {
+            text-align: center;
+            margin-top: 12px;
+        }
+
+        .slider-dots span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+            margin: 0 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .slider-dots span.active {
+            background: var(--blue);
+        }
+
+        /* ---- Info Grid ---- */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 28px;
+        }
+
+        .info-box {
+            background: var(--navy);
+            color: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .info-box .num {
+            font-family: 'Playfair Display', serif;
+            font-size: 34px;
+            color: var(--gold);
+        }
+
+        .info-box .label {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 4px;
+        }
+
+        /* ---- Forms ---- */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-family: inherit;
+            color: #1e293b;
+            background: var(--white);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+
+        .btn {
+            background: var(--blue);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius);
+            padding: 11px 30px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .btn:hover {
+            background: var(--navy);
+            transform: translateY(-1px);
+        }
+
+        /* ---- Success Message ---- */
+        .alert-success {
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            color: var(--success);
+            border-radius: var(--radius);
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ---- Tables ---- */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 28px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table thead {
+            background: var(--navy);
+            color: var(--white);
+        }
+
+        table thead th {
+            padding: 13px 16px;
+            text-align: left;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+
+        table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        table tbody tr:hover {
+            background: var(--light);
+        }
+
+        table tbody td {
+            padding: 12px 16px;
+            color: #334155;
+        }
+
+        table tbody tr:nth-child(even) td {
+            background: #f8faff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-active   { background: #dcfce7; color: #166534; }
+        .badge-issued   { background: #fef3c7; color: #92400e; }
+        .badge-returned { background: #dbeafe; color: #1e40af; }
+
+        /* ---- Footer ---- */
+        footer {
+            background: var(--navy);
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+            padding: 18px;
+            font-size: 13px;
+            margin-top: 60px;
+        }
+
+        footer strong {
+            color: var(--gold);
         }
     </style>
 </head>
-
 <body>
 
+<!-- ==================== HEADER ==================== -->
 <header>
-    <h1>KD Polytechnic College</h1>
-    <p>Welcome to Our College Website</p>
+    <div class="header-top">
+        Affiliated to Gujarat Technological University (GTU) &nbsp;|&nbsp; Approved by AICTE
+    </div>
+    <div class="header-main">
+        <div class="header-logo">KD</div>
+        <div class="header-text">
+            <h1>KD Polytechnic, Patan</h1>
+            <p>Knowledge &bull; Discipline &bull; Excellence &nbsp;&mdash;&nbsp; Patan, Gujarat</p>
+        </div>
+    </div>
 </header>
 
+<!-- ==================== NAVIGATION ==================== -->
 <nav>
-    <a href="#home">Home</a>
-    <a href="#about">About</a>
-    <a href="#courses">Courses</a>
-    <a href="#contact">Contact</a>
+    <a href="index.php?page=home"      class="<?php echo ($page == 'home')      ? 'active' : ''; ?>">&#127968; Home</a>
+    <a href="index.php?page=admission" class="<?php echo ($page == 'admission') ? 'active' : ''; ?>">&#128203; Admission</a>
+    <a href="index.php?page=library"   class="<?php echo ($page == 'library')   ? 'active' : ''; ?>">&#128218; Library</a>
 </nav>
 
-<div class="container">
+<!-- ==================== PAGE CONTENT ==================== -->
+<div class="page-wrapper">
 
-    <!-- HOME -->
-    <div id="home" class="card">
-        <h2>Home</h2>
-        <p>Welcome to KD Polytechnic Patan. We provide quality education in engineering and technology.</p>
+<?php
+// ============================================================
+// HOME PAGE
+// ============================================================
+if ($page == "home") {
+?>
+    <h2 class="section-title">Welcome to KD Polytechnic, Patan</h2>
+    <p class="section-subtitle">Empowering students with quality technical education since 1985.</p>
+    <hr class="divider">
+
+    <!-- Image Slider -->
+    <div class="slider-wrapper">
+        <img id="sliderImg" src="https://uploads.onecompiler.io/44m8eb3ha/3xt4z3ws9/19066.jpg" alt="Campus">
+        <div class="slider-caption" id="sliderCaption">Academic Block &mdash; KD Polytechnic, Patan</div>
+    </div>
+    <div class="slider-dots">
+        <span class="active" onclick="goToSlide(0)"></span>
+        <span onclick="goToSlide(1)"></span>
+        <span onclick="goToSlide(2)"></span>
     </div>
 
-    <!-- ABOUT -->
-    <div id="about" class="card">
-        <h2>About Us</h2>
-        <p>Our college is one of the best polytechnic institutes in Gujarat offering diploma courses with experienced faculty.</p>
+    <!-- Stats -->
+    <div class="info-grid">
+        <div class="info-box">
+            <div class="num">38+</div>
+            <div class="label">Years of Excellence</div>
+        </div>
+        <div class="info-box">
+            <div class="num">12</div>
+            <div class="label">Diploma Programs</div>
+        </div>
+        <div class="info-box">
+            <div class="num">5000+</div>
+            <div class="label">Alumni Worldwide</div>
+        </div>
     </div>
 
-    <!-- COURSES -->
-    <div id="courses" class="card">
-        <h2>Courses</h2>
-        <ul>
-            <li>Computer Engineering</li>
-            <li>Mechanical Engineering</li>
-            <li>Civil Engineering</li>
-            <li>Electrical Engineering</li>
-        </ul>
+    <!-- About Card -->
+    <div class="card" style="margin-top: 28px;">
+        <h3>About Our Institute</h3>
+        <p style="line-height: 1.7; color: #475569;">
+            KD Polytechnic, Patan is a premier technical institute in North Gujarat, affiliated with the
+            Gujarat Technological University (GTU). We offer diploma engineering programs in Computer Engineering,
+            Civil Engineering, Electrical Engineering, and Mechanical Engineering. Our mission is to provide
+            industry-relevant, hands-on technical education that prepares students for real-world challenges.
+        </p>
     </div>
 
-    <!-- CONTACT -->
-    <div id="contact" class="card">
-        <h2>Contact Us</h2>
+    <script>
+        // JavaScript Image Slider
+        var slides = [
+            {
+                src: "https://uploads.onecompiler.io/44m8eb3ha/3xt4z3ws9/19066.jpg",
+                caption: "Academic Block &mdash; KD Polytechnic, Patan"
+            },
+            {
+                src: "https://uploads.onecompiler.io/44m8eb3ha/3xt4z3ws9/19059.jpg",
+                caption: "Main Gate &mdash; KD Polytechnic, Patan"
+            },
+            {
+                src: "https://uploads.onecompiler.io/44m8eb3ha/3xt4z3ws9/19062.jpg",
+                caption: "Campus Grounds &mdash; KD Polytechnic, Patan"
+            }
+        ];
 
-        <form method="POST">
-            <input type="text" name="name" placeholder="Enter Name">
-            <input type="email" name="email" placeholder="Enter Email">
-            <textarea name="message" placeholder="Enter Message"></textarea>
-            <button type="submit" name="submit">Send</button>
+        var currentSlide = 0;
+        var dots = document.querySelectorAll('.slider-dots span');
+
+        function goToSlide(n) {
+            currentSlide = n;
+            var img = document.getElementById('sliderImg');
+            img.style.opacity = 0;
+            setTimeout(function() {
+                img.src = slides[n].src;
+                document.getElementById('sliderCaption').innerHTML = slides[n].caption;
+                img.style.opacity = 1;
+            }, 350);
+            dots.forEach(function(d, i) {
+                d.classList.toggle('active', i === n);
+            });
+        }
+
+        // Auto-advance every 3 seconds
+        setInterval(function() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            goToSlide(currentSlide);
+        }, 3000);
+    </script>
+
+<?php
+// ============================================================
+// ADMISSION PAGE
+// ============================================================
+} elseif ($page == "admission") {
+?>
+    <h2 class="section-title">Admission Section</h2>
+    <p class="section-subtitle">Apply for admission to our Diploma Engineering programs.</p>
+    <hr class="divider">
+
+<?php
+    // Process form submission
+    $submitted = false;
+    $applicant_name   = "";
+    $applicant_course = "";
+
+    if (isset($_POST['admission_submit'])) {
+        // Sanitize input to prevent XSS
+        $applicant_name   = htmlspecialchars(trim($_POST['name']));
+        $applicant_course = htmlspecialchars(trim($_POST['course']));
+
+        if ($applicant_name !== "" && $applicant_course !== "") {
+            $submitted = true;
+        }
+    }
+?>
+
+    <?php if ($submitted): ?>
+    <div class="alert-success">
+        &#10003;&nbsp; Application Submitted Successfully!
+    </div>
+    <div class="card">
+        <h3>Application Details</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Applicant Name</strong></td>
+                    <td><?php echo $applicant_name; ?></td>
+                </tr>
+                <tr>
+                    <td><strong>Course Applied</strong></td>
+                    <td><?php echo $applicant_course; ?></td>
+                </tr>
+                <tr>
+                    <td><strong>Status</strong></td>
+                    <td><span class="badge badge-active">Under Review</span></td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <a href="index.php?page=admission"><button class="btn">&#8592; Apply Again</button></a>
+    </div>
+    <?php endif; ?>
+
+    <div class="card">
+        <h3>Online Application Form</h3>
+        <form method="POST" action="index.php?page=admission">
+            <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+            </div>
+            <div class="form-group">
+                <label for="course">Course *</label>
+                <select id="course" name="course" required>
+                    <option value="">-- Select a Course --</option>
+                    <option value="Computer Engineering">Computer Engineering</option>
+                    <option value="Civil Engineering">Civil Engineering</option>
+                    <option value="Electrical Engineering">Electrical Engineering</option>
+                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                    <option value="Electronics & Communication">Electronics &amp; Communication</option>
+                </select>
+            </div>
+            <button type="submit" name="admission_submit" class="btn">Submit Application &#8594;</button>
         </form>
-
-        <p style="color:green;"><?php echo $msg; ?></p>
     </div>
 
-</div>
+<?php
+// ============================================================
+// LIBRARY PAGE
+// ============================================================
+} elseif ($page == "library") {
+?>
+    <h2 class="section-title">Library Management</h2>
+    <p class="section-subtitle">View library members, issued books, and return records.</p>
+    <hr class="divider">
 
+<?php
+    // ---------- Sample Data (In real app, fetched from MySQL) ----------
+
+    // Note: In a live system with MySQL, you would connect using:
+    // $conn = new mysqli("localhost", "root", "", "kdpoly_db");
+    // and use $conn->prepare() with bound parameters to prevent SQL Injection.
+    // Here we use static arrays to demonstrate the output.
+
+    $members = [
+        ["M001", "Vishal Patel",   "Computer Engineering",    "Active"],
+        ["M002", "Rudra Shah",     "Civil Engineering",       "Active"],
+        ["M003", "Priya Desai",    "Electrical Engineering",  "Active"],
+        ["M004", "Ankit Joshi",    "Mechanical Engineering",  "Active"],
+        ["M005", "Neha Sharma",    "Computer Engineering",    "Active"],
+    ];
+
+    $issued_books = [
+        ["I001", "Vishal Patel",  "Introduction to PHP",      "01-04-2026", "Pending"],
+        ["I002", "Rudra Shah",    "Hunter Story",             "05-04-2026", "Pending"],
+        ["I003", "Priya Desai",   "Database Management",      "08-04-2026", "Pending"],
+        ["I004", "Ankit Joshi",   "Engineering Mathematics",  "10-04-2026", "Pending"],
+    ];
+
+    $returned_books = [
+        ["R001", "Neha Sharma",  "Past Stories",         "15-03-2026", "10-04-2026"],
+        ["R002", "Vishal Patel", "Web Technologies",     "01-03-2026", "28-03-2026"],
+        ["R003", "Rudra Shah",   "C Programming",        "20-02-2026", "15-03-2026"],
+    ];
+
+    // Handle Add Book form
+    $book_added = false;
+    $added_book   = "";
+    $added_author = "";
+    if (isset($_POST['library_submit'])) {
+        $added_book   = htmlspecialchars(trim($_POST['book']));
+        $added_author = htmlspecialchars(trim($_POST['author']));
+        if ($added_book !== "" && $added_author !== "") {
+            $book_added = true;
+        }
+    }
+?>
+
+    <!-- Add Book Form -->
+    <div class="card">
+        <h3>&#128218; Add New Book</h3>
+        <?php if ($book_added): ?>
+        <div class="alert-success">
+            &#10003;&nbsp; Book "<strong><?php echo $added_book; ?></strong>" by <strong><?php echo $added_author; ?></strong> added successfully!
+        </div>
+        <?php endif; ?>
+        <form method="POST" action="index.php?page=library">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label for="book">Book Name *</label>
+                    <input type="text" id="book" name="book" placeholder="Enter book title" required>
+                </div>
+                <div class="form-group">
+                    <label for="author">Author Name *</label>
+                    <input type="text" id="author" name="author" placeholder="Enter author name" required>
+                </div>
+            </div>
+            <button type="submit" name="library_submit" class="btn">Add Book</button>
+        </form>
+    </div>
+
+    <!-- Library Members Table -->
+    <div class="card">
+        <h3>&#128100; Library Members</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Member ID</th>
+                        <th>Name</th>
+                        <th>Course</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($members as $m): ?>
+                    <tr>
+                        <td><?php echo $m[0]; ?></td>
+                        <td><?php echo $m[1]; ?></td>
+                        <td><?php echo $m[2]; ?></td>
+                        <td><span class="badge badge-active"><?php echo $m[3]; ?></span></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Issued Books Table -->
+    <div class="card">
+        <h3>&#128466; Issued Books</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Issue ID</th>
+                        <th>Member</th>
+                        <th>Book</th>
+                        <th>Issue Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($issued_books as $b): ?>
+                    <tr>
+                        <td><?php echo $b[0]; ?></td>
+                        <td><?php echo $b[1]; ?></td>
+                        <td><?php echo $b[2]; ?></td>
+                        <td><?php echo $b[3]; ?></td>
+                        <td><span class="badge badge-issued"><?php echo $b[4]; ?></span></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Returned Books Table -->
+    <div class="card">
+        <h3>&#10003; Returned Books</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Return ID</th>
+                        <th>Member</th>
+                        <th>Book</th>
+                        <th>Issue Date</th>
+                        <th>Return Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($returned_books as $r): ?>
+                    <tr>
+                        <td><?php echo $r[0]; ?></td>
+                        <td><?php echo $r[1]; ?></td>
+                        <td><?php echo $r[2]; ?></td>
+                        <td><?php echo $r[3]; ?></td>
+                        <td><span class="badge badge-returned"><?php echo $r[4]; ?></span></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<?php
+// ============================================================
+// PAGE NOT FOUND
+// ============================================================
+} else {
+    echo "<h2 class='section-title'>Page Not Found</h2>";
+    echo "<p class='section-subtitle'>The page you requested does not exist. <a href='index.php'>Go to Home</a></p>";
+}
+?>
+
+</div><!-- end .page-wrapper -->
+
+<!-- ==================== FOOTER ==================== -->
 <footer>
-    <p>© 2026 KD Polytechnic Patan | All Rights Reserved</p>
+    &copy; <?php echo date('Y'); ?> &nbsp;<strong>KD Polytechnic, Patan</strong>&nbsp; | &nbsp;
+    Introduction to Web Development (DI04007011) &nbsp;|&nbsp; Practical No. 13
 </footer>
 
 </body>
